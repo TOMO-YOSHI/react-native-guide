@@ -55,13 +55,13 @@ export default function App() {
     );
   }
 
-  content = (
-    <GameOverScreen
-      roundsNumber={1}
-      userNumber={1}
-      onRestart={configreNewGameHandler}
-    />
-  );
+  // content = (
+  //   <GameOverScreen
+  //     roundsNumber={1}
+  //     userNumber={1}
+  //     onRestart={configreNewGameHandler}
+  //   />
+  // );
 
   return (
     <View style={styles.screen}>
