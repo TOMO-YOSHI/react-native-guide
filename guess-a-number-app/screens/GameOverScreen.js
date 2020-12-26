@@ -7,6 +7,7 @@ import {
   Image,
   Dimensions,
   ScrollView,
+  SafeAreaView
 } from "react-native";
 
 import BodyText from "../components/BodyText";
@@ -24,10 +25,10 @@ const GameOverScreen = (props) => (
           style={styles.image}
           resizeMode="cover"
           source={require("../assets/images/success.png")}
-          // source={{
-          //   uri:
-          //     "https://images.pexels.com/photos/1851164/pexels-photo-1851164.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260",
-          // }}
+        // source={{
+        //   uri:
+        //     "https://images.pexels.com/photos/1851164/pexels-photo-1851164.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260",
+        // }}
         />
       </View>
       <View style={styles.resultContainer}>
@@ -51,6 +52,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    paddingVertical: 10,
   },
   imageContainer: {
     borderRadius: (Dimensions.get("window").width * 0.7) / 2,
