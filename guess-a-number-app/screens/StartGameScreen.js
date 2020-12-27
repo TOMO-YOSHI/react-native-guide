@@ -10,6 +10,7 @@ import {
   Dimensions,
   ScrollView,
   KeyboardAvoidingView,
+  Platform
 } from "react-native";
 
 import Card from "../components/Card";
@@ -146,6 +147,7 @@ const styles = StyleSheet.create({
     maxWidth: "95%",
     minWidth: 300,
     alignItems: "center",
+    marginBottom: Platform.OS === "android" ? 10 : 0
   },
   buttonContainer: {
     flexDirection: "row",
@@ -164,6 +166,7 @@ const styles = StyleSheet.create({
   summaryContainer: {
     marginTop: 20,
     alignItems: "center",
+    marginBottom: Platform.OS === "android" ? 10 : 0
   },
   text: {
     fontFamily: "open-sans",
