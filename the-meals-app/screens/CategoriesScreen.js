@@ -5,29 +5,27 @@ import {
     FlatList,
     StyleSheet,
     TouchableOpacity,
-    Platform,
 } from "react-native";
+import { HeaderButtons, Item } from "react-navigation-header-buttons";
 
 import { CATEGORIES } from "../data/dummy-data";
-import colors from "../constants/colors";
+import HeaderButton from "../components/HeaderButton";
+import CategoryGridTile from "../components/CategoryGridTile";
 
 const CategoriesScreen = (props) => {
     // console.log(props);
     const renderGridItem = (itemData) => {
         return (
-            <TouchableOpacity
-                style={styles.gridItem}
-                onPress={() =>
+            <CategoryGridTile
+                title={itemData.item.title}
+                color={itemData.item.color}
+                onSelect={() =>
                     props.navigation.navigate({
                         routeName: "CategoryMeals",
                         params: { categoryId: itemData.item.id },
                     })
                 }
-            >
-                <View>
-                    <Text>{itemData.item.title}</Text>
-                </View>
-            </TouchableOpacity>
+            />
         );
     };
 
@@ -51,12 +49,25 @@ const CategoriesScreen = (props) => {
     );
 };
 
-CategoriesScreen.navigationOptions = {
-    headerTitle: "Meal Categories",
-    // headerStyle: {
-    //     backgroundColor: Platform.OS === "android" ? colors.primaryColor : "",
-    // },
-    // headerTintColor: Platform.OS === "android" ? "white" : colors.primaryColor,
+CategoriesScreen.navigationOptions = (navData) => {
+    return {
+        headerTitle: "Meal Categories",
+        headerLeft: (
+            <HeaderButtons HeaderButtonComponent={HeaderButton}>
+                <Item
+                    title="Menu"
+                    iconName="ios-menu"
+                    onPress={() => {
+                        navData.navigation.toggleDrawer();
+                    }}
+                />
+            </HeaderButtons>
+        ),
+        // headerStyle: {
+        //     backgroundColor: Platform.OS === "android" ? colors.primaryColor : "",
+        // },
+        // headerTintColor: Platform.OS === "android" ? "white" : colors.primaryColor,
+    };
 };
 
 export default CategoriesScreen;
@@ -66,10 +77,5 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
-    },
-    gridItem: {
-        flex: 1,
-        margin: 15,
-        height: 150,
     },
 });

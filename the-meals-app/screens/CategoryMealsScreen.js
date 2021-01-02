@@ -1,31 +1,31 @@
 import React from "react";
-import { View, Text, Button, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { useSelector } from "react-redux";
 
 import { CATEGORIES } from "../data/dummy-data";
+import MealList from "../components/MealList";
+import DefaultText from "../components/DefaultText";
 
 const CategoryMealsScreen = (props) => {
     const catId = props.navigation.getParam("categoryId");
 
-    const selectedCategory = CATEGORIES.find((cat) => cat.id === catId);
+    const availableMeals = useSelector((state) => state.meals.filteredMeals);
 
-    return (
-        <View style={styles.screen}>
-            <Text>The Category Meals Screen</Text>
-            <Text>{selectedCategory.title}</Text>
-            <Button
-                title="Go to Details"
-                onPress={() => {
-                    props.navigation.navigate({ routeName: "MealDetail" });
-                }}
-            />
-            <Button
-                title="Go back"
-                onPress={() => {
-                    props.navigation.goBack();
-                }}
-            />
-        </View>
+    const displayedMeals = availableMeals.filter(
+        (meal) => meal.categoryIds.indexOf(catId) >= 0
     );
+
+    if (displayedMeals.length === 0) {
+        return (
+            <View style={styles.content}>
+                <DefaultText>
+                    No meals found, maybe check your filters?
+                </DefaultText>
+            </View>
+        );
+    }
+
+    return <MealList listData={displayedMeals} navigation={props.navigation} />;
 };
 
 CategoryMealsScreen.navigationOptions = (navigationData) => {
@@ -39,12 +39,12 @@ CategoryMealsScreen.navigationOptions = (navigationData) => {
     };
 };
 
-export default CategoryMealsScreen;
-
 const styles = StyleSheet.create({
-    screen: {
+    content: {
         flex: 1,
-        alignItems: "center",
         justifyContent: "center",
+        alignItems: "center",
     },
 });
+
+export default CategoryMealsScreen;
