@@ -40,7 +40,31 @@ export default (state = initialState, action) => {
             };
         case REMOVE_FROM_CART:
             const pid = action.pid;
-            const selectedItem = state.items.find();
+            const selectedItem = state.items[pid];
+            const quantity = selectedItem.quantity;
+            const price = selectedItem.productPrice;
+            let newItems = { ...state.items };
+            if (quantity === 1) {
+                delete newItems[pid];
+            } else {
+                const updatedCartItem = new CartItem(
+                    selectedItem.quantity - 1,
+                    price,
+                    selectedItem.productTitle,
+                    selectedItem.sum - price
+                );
+                newItems = {
+                    ...newItems,
+                    [pid]: updatedCartItem,
+                };
+            }
+            return {
+                ...state,
+                items: {
+                    ...newItems,
+                },
+                totalAmount: Math.abs(state.totalAmount - price),
+            };
     }
     return state;
 };
