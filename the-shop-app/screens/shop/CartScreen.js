@@ -63,6 +63,11 @@ const CartScreen = (props) => {
         </View>
     );
 };
+
+CartScreen.navigationOptions = {
+    headerTitle: "Your Cart",
+};
+
 export default CartScreen;
 
 const styles = StyleSheet.create({
