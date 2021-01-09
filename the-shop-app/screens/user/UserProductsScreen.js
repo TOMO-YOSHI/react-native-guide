@@ -1,59 +1,48 @@
 import React from "react";
-import { FlatList, StyleSheet, Platform, Button } from "react-native";
+import { StyleSheet, FlatList, Platform, Button } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
-import { HeaderButtons, Item } from "react-navigation-header-buttons";
 
 import ProductItem from "../../components/shop/ProductItem";
-import * as cartActions from "../../store/actions/cart";
+
+import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import HeaderButton from "../../components/UI/HeaderButton";
 
 import colors from "../../constants/colors";
 
-const ProductOverviewScreen = (props) => {
-    const products = useSelector((state) => state.products.availableProducts);
+import * as productsActions from "../../store/actions/products";
+
+const UserProductsScreen = (props) => {
+    const UserProducts = useSelector((state) => state.products.userProducts);
     const dispatch = useDispatch();
 
-    const selectItemHandler = (id, title) => {
-        props.navigation.navigate("ProductDetail", {
-            productId: id,
-            productTitle: title,
-        });
+    const editProductHandler = (id) => {
+        props.navigation.navigate("EditProduct", { productId: id });
     };
 
     return (
         <FlatList
-            data={products}
-            keyExtractor={(item) => item.id}
+            data={UserProducts}
             renderItem={(itemData) => (
                 <ProductItem
                     image={itemData.item.imageUrl}
                     title={itemData.item.title}
                     price={itemData.item.price}
-                    onSelect={() => {
-                        selectItemHandler(
-                            itemData.item.id,
-                            itemData.item.title
-                        );
-                    }}
-                    // onAddToCart={() => {
-                    //     dispatch(cartActions.addToCart(itemData.item));
-                    // }}
+                    onSelect={() => {}}
                 >
                     <Button
                         color={colors.primary}
-                        title="View Details"
+                        title="Edit"
                         onPress={() => {
-                            selectItemHandler(
-                                itemData.item.id,
-                                itemData.item.title
-                            );
+                            editProductHandler(itemData.item.id);
                         }}
                     />
                     <Button
                         color={colors.primary}
-                        title="To Cart"
+                        title="Delete"
                         onPress={() => {
-                            dispatch(cartActions.addToCart(itemData.item));
+                            dispatch(
+                                productsActions.deleteProduct(itemData.item.id)
+                            );
                         }}
                     />
                 </ProductItem>
@@ -62,9 +51,9 @@ const ProductOverviewScreen = (props) => {
     );
 };
 
-ProductOverviewScreen.navigationOptions = (navData) => {
+UserProductsScreen.navigationOptions = (navData) => {
     return {
-        headerTitle: "All Products",
+        headerTitle: "Your Products",
         headerLeft: (
             <HeaderButtons HeaderButtonComponent={HeaderButton}>
                 <Item
@@ -81,20 +70,18 @@ ProductOverviewScreen.navigationOptions = (navData) => {
         headerRight: (
             <HeaderButtons HeaderButtonComponent={HeaderButton}>
                 <Item
-                    title="Cart"
+                    title="Add"
                     iconName={
-                        Platform.OS === "android" ? "md-cart" : "ios-cart"
+                        Platform.OS === "android" ? "md-create" : "ios-create"
                     }
                     onPress={() => {
-                        navData.navigation.navigate("Cart");
+                        navData.navigation.navigate("EditProduct");
                     }}
                 />
             </HeaderButtons>
         ),
     };
 };
-
-export default ProductOverviewScreen;
 
 const styles = StyleSheet.create({
     container: {
@@ -103,3 +90,4 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
 });
+export default UserProductsScreen;
