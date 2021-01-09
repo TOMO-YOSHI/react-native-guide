@@ -22,7 +22,7 @@ const ProductItem = (props) => {
     return (
         <View style={styles.product}>
             <View style={styles.touchable}>
-                <TouchableCmp onPress={props.onViewDetail} useForeground>
+                <TouchableCmp onPress={props.onSelect} useForeground>
                     <View>
                         <View style={styles.imageContainer}>
                             <Image
@@ -37,7 +37,8 @@ const ProductItem = (props) => {
                             </Text>
                         </View>
                         <View style={styles.actions}>
-                            <Button
+                            {props.children}
+                            {/* <Button
                                 color={colors.primary}
                                 title="View Details"
                                 onPress={props.onViewDetail}
@@ -46,7 +47,7 @@ const ProductItem = (props) => {
                                 color={colors.primary}
                                 title="To Cart"
                                 onPress={props.onAddToCart}
-                            />
+                            /> */}
                         </View>
                     </View>
                 </TouchableCmp>
@@ -85,7 +86,8 @@ const styles = StyleSheet.create({
     },
     details: {
         alignItems: "center",
-        height: "15%",
+        height: "17%",
+        padding: 10,
     },
     title: {
         fontFamily: "open-sans-bold",
@@ -101,7 +103,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        height: "25%",
+        height: "23%",
         paddingHorizontal: 20,
     },
 });
