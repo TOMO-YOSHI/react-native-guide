@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useEffect } from "react";
 import { View, Text, StyleSheet, TextInput } from "react-native";
 
 const INPUT_CHANGE = "INPUT_CHANGE";
@@ -28,6 +28,14 @@ const Input = (props) => {
         isValid: props.initialyValid,
         touched: false,
     });
+
+    const { onInputChange } = props;
+
+    useEffect(() => {
+        if (inputState.touched) {
+            onInputChange(inputState.value, inputState.isValid);
+        }
+    }, [inputState.value, inputState.isValid]);
 
     const textChangeHandler = (text) => {
         const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -70,7 +78,11 @@ const Input = (props) => {
                 //     console.log("It will be fired when a return button is hit")
                 // }
             />
-            {!inputState.isValid && <Text>{props.errorText}</Text>}
+            {!inputState.isValid && inputState.touched && (
+                <View>
+                    <Text>{props.errorText}</Text>
+                </View>
+            )}
         </View>
     );
 };
