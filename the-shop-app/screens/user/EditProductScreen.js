@@ -111,18 +111,21 @@ const EditProductScreen = (props) => {
         props.navigation.setParams({ submit: submitHandler });
     }, [submitHandler]);
 
-    const textChangeHandler = (inputIdentifier, text) => {
-        let isValid = false;
-        if (text.trim().length > 0) {
-            isValid = true;
-        }
-        dispatchFormState({
-            type: FORM_INPUT_UPDATE,
-            value: text,
-            isValid: isValid,
-            input: inputIdentifier,
-        });
-    };
+    const inputChangeHandler = useCallback(
+        (inputIdentifier, inputValue, inputValidity) => {
+            // let isValid = false;
+            // if (value.trim().length > 0) {
+            //     isValid = true;
+            // }
+            dispatchFormState({
+                type: FORM_INPUT_UPDATE,
+                value: inputValue,
+                isValid: inputValidity,
+                input: inputIdentifier,
+            });
+        },
+        [dispatchFormState]
+    );
 
     return (
         <ScrollView>
@@ -134,6 +137,10 @@ const EditProductScreen = (props) => {
                     autoCapitalize="sentences"
                     autoCorrect
                     returnKeyType="next"
+                    onInputChange={() => inputChangeHandler("title")}
+                    initialValue={editedProduct ? editedProduct.title : ""}
+                    initiallyValid={!!editedProduct}
+                    required
                 />
                 <Input
                     label="Image URL"
@@ -142,6 +149,10 @@ const EditProductScreen = (props) => {
                     autoCapitalize="sentences"
                     autoCorrect
                     returnKeyType="next"
+                    onInputChange={() => inputChangeHandler("imageUrl")}
+                    initialValue={editedProduct ? editedProduct.imageUrl : ""}
+                    initiallyValid={!!editedProduct}
+                    required
                 />
                 {/* <View style={styles.formControl}>
                     <Text style={styles.label}>Image URL</Text>
@@ -161,6 +172,8 @@ const EditProductScreen = (props) => {
                         autoCapitalize="sentences"
                         autoCorrect
                         returnKeyType="next"
+                        required
+                        min={0.1}
                     />
                 )}
                 <Input
@@ -171,6 +184,13 @@ const EditProductScreen = (props) => {
                     autoCorrect
                     multiline
                     numberOfLines={3}
+                    onInputChange={() => inputChangeHandler("description")}
+                    initialValue={
+                        editedProduct ? editedProduct.description : ""
+                    }
+                    initiallyValid={!!editedProduct}
+                    required
+                    minLength={5}
                 />
                 {/* <View style={styles.formControl}>
                     <Text style={styles.label}>Description</Text>
