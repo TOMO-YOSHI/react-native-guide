@@ -32,8 +32,6 @@ export const fetchProducts = () => {
                     )
                 );
 
-                // console.log(loadedProducts);
-
                 dispatch({ type: SET_PRODUCTS, products: loadedProducts });
             }
 
@@ -90,8 +88,6 @@ export const updateProduct = (id, title, description, imageUrl) => {
                 body: JSON.stringify({ title, description, imageUrl }),
             }
         );
-
-        console.log("Success!!");
 
         // const resData = await response.json();
 

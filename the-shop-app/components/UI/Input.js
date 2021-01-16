@@ -25,7 +25,7 @@ const inputReducer = (state, action) => {
 const Input = (props) => {
     const [inputState, dispatch] = useReducer(inputReducer, {
         value: props.initialValue ? props.initialValue : "",
-        isValid: props.initialyValid,
+        isValid: props.initiallyValid,
         touched: false,
     });
 
@@ -37,11 +37,11 @@ const Input = (props) => {
     // }, [inputState]);
 
     useEffect(() => {
-        // if (inputState.touched) {
-        console.log("onInputChange");
-        console.log(id, inputState.value);
-        onInputChange(id, inputState.value, inputState.isValid);
-        // }
+        if (inputState.touched) {
+            // console.log("onInputChange");
+            // console.log(id, inputState.value, inputState.isValid);
+            onInputChange(id, inputState.value, inputState.isValid);
+        }
     }, [inputState]);
     // }, [inputState.value, inputState.isValid]);
 
@@ -51,9 +51,9 @@ const Input = (props) => {
         if (props.required && text.trim().length === 0) {
             isValid = false;
         }
-        // if (props.email && !emailRegex.test(text.toLowerCase())) {
-        //     isValid = false;
-        // }
+        if (props.email && !emailRegex.test(text.toLowerCase())) {
+            isValid = false;
+        }
         if (props.min != null && +text < props.min) {
             isValid = false;
         }
@@ -80,7 +80,7 @@ const Input = (props) => {
                 style={styles.input}
                 value={inputState.value}
                 onChangeText={(text) => textChangeHandler(text)}
-                onBlur={lostFocusHandler}
+                onKeyPress={lostFocusHandler}
                 // onFocus={lostFocusHandler}
                 // onEndEditing={() =>
                 //     console.log("It will be fired when removing cursor")
