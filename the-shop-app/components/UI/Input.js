@@ -32,11 +32,18 @@ const Input = (props) => {
     const { onInputChange, id } = props;
     // console.log(props);
 
+    // useEffect(() => {
+    //     console.log(inputState);
+    // }, [inputState]);
+
     useEffect(() => {
-        if (inputState.touched) {
-            onInputChange(id, inputState.value, inputState.isValid);
-        }
-    }, [inputState.value, inputState.isValid]);
+        // if (inputState.touched) {
+        console.log("onInputChange");
+        console.log(id, inputState.value);
+        onInputChange(id, inputState.value, inputState.isValid);
+        // }
+    }, [inputState]);
+    // }, [inputState.value, inputState.isValid]);
 
     const textChangeHandler = (text) => {
         const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -44,9 +51,9 @@ const Input = (props) => {
         if (props.required && text.trim().length === 0) {
             isValid = false;
         }
-        if (props.email && !emailRegex.test(text.toLowerCase())) {
-            isValid = false;
-        }
+        // if (props.email && !emailRegex.test(text.toLowerCase())) {
+        //     isValid = false;
+        // }
         if (props.min != null && +text < props.min) {
             isValid = false;
         }
@@ -56,6 +63,8 @@ const Input = (props) => {
         if (props.minLength != null && text.length < props.minLength) {
             isValid = false;
         }
+        // console.log("input");
+        // console.log({ type: INPUT_CHANGE, value: text, isValid: isValid });
         dispatch({ type: INPUT_CHANGE, value: text, isValid: isValid });
     };
 
@@ -72,6 +81,7 @@ const Input = (props) => {
                 value={inputState.value}
                 onChangeText={(text) => textChangeHandler(text)}
                 onBlur={lostFocusHandler}
+                // onFocus={lostFocusHandler}
                 // onEndEditing={() =>
                 //     console.log("It will be fired when removing cursor")
                 // }

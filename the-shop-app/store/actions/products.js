@@ -7,32 +7,41 @@ export const SET_PRODUCTS = "SET_PRODUCTS";
 
 export const fetchProducts = () => {
     return async (dispatch) => {
-        // any async code you want!
-        const response = await fetch(
-            "https://rn-complete-guide-854b9-default-rtdb.firebaseio.com/products.json"
-        );
-
-        const resData = await response.json();
-        const loadedProducts = [];
-
-        for (const key in resData) {
-            loadedProducts.push(
-                new Product(
-                    key,
-                    "u1",
-                    resData[key].title,
-                    resData[key].imageUrl,
-                    resData[key].description,
-                    resData[key].price
-                )
+        try {
+            // any async code you want!
+            const response = await fetch(
+                "https://rn-complete-guide-854b9-default-rtdb.firebaseio.com/products.json"
             );
 
-            console.log(loadedProducts);
+            if (!response.ok) {
+                throw new Error("Something went wrong!");
+            }
 
-            dispatch({ type: SET_PRODUCTS, products: loadedProducts });
+            const resData = await response.json();
+            const loadedProducts = [];
+
+            for (const key in resData) {
+                loadedProducts.push(
+                    new Product(
+                        key,
+                        "u1",
+                        resData[key].title,
+                        resData[key].imageUrl,
+                        resData[key].description,
+                        resData[key].price
+                    )
+                );
+
+                // console.log(loadedProducts);
+
+                dispatch({ type: SET_PRODUCTS, products: loadedProducts });
+            }
+
+            // dispatch({ type: SET_PRODUCTS, products: [] });
+        } catch (error) {
+            // send to custom analytics server
+            throw error;
         }
-
-        // dispatch({ type: SET_PRODUCTS, products: [] });
     };
 };
 
@@ -71,9 +80,25 @@ export const createProduct = (title, description, imageUrl, price) => {
 // };
 
 export const updateProduct = (id, title, description, imageUrl) => {
-    return {
-        type: UPDATE_PRODUCT,
-        pid: id,
-        productData: { title, description, imageUrl },
+    return async (dispatch) => {
+        // any async code you want!
+        await fetch(
+            `https://rn-complete-guide-854b9-default-rtdb.firebaseio.com/products/${id}.json`,
+            {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, description, imageUrl }),
+            }
+        );
+
+        console.log("Success!!");
+
+        // const resData = await response.json();
+
+        dispatch({
+            type: UPDATE_PRODUCT,
+            pid: id,
+            productData: { title, description, imageUrl },
+        });
     };
 };
