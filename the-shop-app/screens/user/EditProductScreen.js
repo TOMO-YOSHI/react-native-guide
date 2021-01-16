@@ -63,9 +63,9 @@ const EditProductScreen = (props) => {
         formIsValid: editedProduct ? true : false,
     });
 
-    useEffect(() => {
-        console.log(formState);
-    }, [formState]);
+    // useEffect(() => {
+    //     console.log(formState);
+    // }, [formState]);
 
     // console.log(formState);
 
@@ -82,7 +82,7 @@ const EditProductScreen = (props) => {
     // );
 
     const submitHandler = useCallback(() => {
-        console.log(formState);
+        // console.log(formState);
         if (!formState.formIsValid) {
             Alert.alert(
                 "Wrong input!",
