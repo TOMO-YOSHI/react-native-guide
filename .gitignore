@@ -1,5 +1,7 @@
 # node_modules/**/*
 node_modules/
+.env
+firebase.js
 .expo/
 npm-debug.*
 *.jks

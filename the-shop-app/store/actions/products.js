@@ -5,13 +5,13 @@ export const CREATE_PRODUCT = "CREATE_PRODUCT";
 export const UPDATE_PRODUCT = "UPDATE_PRODUCT";
 export const SET_PRODUCTS = "SET_PRODUCTS";
 
+import firebase from "../../constants/firebase";
+
 export const fetchProducts = () => {
     return async (dispatch) => {
         try {
             // any async code you want!
-            const response = await fetch(
-                "https://rn-complete-guide-854b9-default-rtdb.firebaseio.com/products.json"
-            );
+            const response = await fetch(`${firebase.url}/products.json`);
 
             if (!response.ok) {
                 throw new Error("Something went wrong!");
@@ -44,20 +44,31 @@ export const fetchProducts = () => {
 };
 
 export const deleteProduct = (productId) => {
-    return { type: DELETE_PRODUCT, pid: productId };
+    return async (dispatch) => {
+        // any async code you want!
+        const response = await fetch(
+            `${firebase.url}/products/${productId}.json`,
+            {
+                method: "DELETE",
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Something went wrong!");
+        }
+
+        dispatch({ type: DELETE_PRODUCT, pid: productId });
+    };
 };
 
 export const createProduct = (title, description, imageUrl, price) => {
     return async (dispatch) => {
         // any async code you want!
-        const response = await fetch(
-            "https://rn-complete-guide-854b9-default-rtdb.firebaseio.com/products.json",
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title, description, imageUrl, price }),
-            }
-        );
+        const response = await fetch(`${firebase.url}/products.json`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title, description, imageUrl, price }),
+        });
 
         const resData = await response.json();
 
@@ -80,14 +91,15 @@ export const createProduct = (title, description, imageUrl, price) => {
 export const updateProduct = (id, title, description, imageUrl) => {
     return async (dispatch) => {
         // any async code you want!
-        await fetch(
-            `https://rn-complete-guide-854b9-default-rtdb.firebaseio.com/products/${id}.json`,
-            {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title, description, imageUrl }),
-            }
-        );
+        const response = await fetch(`${firebase.url}/products/${id}.json`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title, description, imageUrl }),
+        });
+
+        if (!response.ok) {
+            throw new Error("Something went wrong!");
+        }
 
         // const resData = await response.json();
 
