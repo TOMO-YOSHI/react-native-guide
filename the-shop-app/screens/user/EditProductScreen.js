@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useReducer } from "react";
+import React, { useState, useEffect, useCallback, useReducer } from "react";
 import {
     View,
     StyleSheet,
@@ -6,6 +6,7 @@ import {
     Platform,
     Alert,
     KeyboardAvoidingView,
+    ActivityIndicator,
 } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import HeaderButton from "../../components/UI/HeaderButton";
@@ -13,6 +14,7 @@ import HeaderButton from "../../components/UI/HeaderButton";
 import { useSelector, useDispatch } from "react-redux";
 import * as productActions from "../../store/actions/products";
 import Input from "../../components/UI/Input";
+import colors from "../../constants/colors";
 
 const FORM_INPUT_UPDATE = "FORM_INPUT_UPDATE";
 
@@ -40,6 +42,9 @@ const formReducer = (state, action) => {
 };
 
 const EditProductScreen = (props) => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState();
+
     const prodId = props.navigation.getParam("productId");
     const editedProduct = useSelector((state) =>
         state.products.userProducts.find((prod) => prod.id === prodId)
@@ -81,7 +86,13 @@ const EditProductScreen = (props) => {
     //     editedProduct ? editedProduct.description : ""
     // );
 
-    const submitHandler = useCallback(() => {
+    useEffect(() => {
+        if (error) {
+            Alert.alert("An error occurred!", error, [{ text: "Okay" }]);
+        }
+    }, [error]);
+
+    const submitHandler = useCallback(async () => {
         // console.log(formState);
         if (!formState.formIsValid) {
             Alert.alert(
@@ -91,26 +102,35 @@ const EditProductScreen = (props) => {
             );
             return;
         }
-        if (editedProduct) {
-            dispatch(
-                productActions.updateProduct(
-                    prodId,
-                    formState.inputValues.title,
-                    formState.inputValues.description,
-                    formState.inputValues.imageUrl
-                )
-            );
-        } else {
-            dispatch(
-                productActions.createProduct(
-                    formState.inputValues.title,
-                    formState.inputValues.description,
-                    formState.inputValues.imageUrl,
-                    +formState.inputValues.price
-                )
-            );
+        setError(null);
+        setIsLoading(true);
+        try {
+            if (editedProduct) {
+                await dispatch(
+                    productActions.updateProduct(
+                        prodId,
+                        formState.inputValues.title,
+                        formState.inputValues.description,
+                        formState.inputValues.imageUrl
+                    )
+                );
+            } else {
+                await dispatch(
+                    productActions.createProduct(
+                        formState.inputValues.title,
+                        formState.inputValues.description,
+                        formState.inputValues.imageUrl,
+                        +formState.inputValues.price
+                    )
+                );
+            }
+            props.navigation.goBack();
+        } catch (err) {
+            setError(err.message);
+            // props.navigation.goBack();
         }
-        props.navigation.goBack();
+        setIsLoading(false);
+        // props.navigation.goBack();
     }, [dispatch, prodId, formState]);
 
     useEffect(() => {
@@ -134,6 +154,14 @@ const EditProductScreen = (props) => {
         },
         [dispatchFormState]
     );
+
+    if (isLoading) {
+        return (
+            <View style={styles.centered}>
+                <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+        );
+    }
 
     return (
         <KeyboardAvoidingView
@@ -255,6 +283,11 @@ EditProductScreen.navigationOptions = (navData) => {
 
 const styles = StyleSheet.create({
     form: { margin: 20 },
+    centered: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
     // formControl: { width: "100%" },
     // label: { fontFamily: "open-sans-bold", marginVertical: 8 },
     // input: {

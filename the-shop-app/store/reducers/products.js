@@ -5,11 +5,12 @@ import {
     UPDATE_PRODUCT,
     SET_PRODUCTS,
 } from "../actions/products";
-// import Product from "../../models/product";
+import Product from "../../models/product";
 
 const initialState = {
     availableProducts: [],
-    userProducts: PRODUCTS.filter((prod) => prod.ownerId === "u1"),
+    // userProducts: PRODUCTS.filter((prod) => prod.ownerId === "u1"),
+    userProducts: [],
 };
 
 export default (state = initialState, action) => {
