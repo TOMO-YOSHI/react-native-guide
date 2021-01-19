@@ -33,8 +33,8 @@ const AuthScreen = (props) => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        console.log("error!");
-        console.log(error);
+        // console.log("error!");
+        // console.log(error);
         if (error) {
             Alert.alert("An error occured!", error, [{ text: "Okay" }]);
         }
@@ -54,6 +54,8 @@ const AuthScreen = (props) => {
                             inputValues.password
                         )
                     );
+                    // console.log("Signup success!!!");
+                    props.navigation.navigate("Shop");
                 } else {
                     await dispatch(
                         authActions.login(
@@ -61,12 +63,14 @@ const AuthScreen = (props) => {
                             inputValues.password
                         )
                     );
+                    // console.log("Login success!!!");
+                    props.navigation.navigate("Shop");
                 }
             }
         } catch (err) {
             setError(err.message);
+            setIsLoading(false);
         }
-        setIsLoading(false);
     };
 
     const inputChangeHandler = useCallback(
