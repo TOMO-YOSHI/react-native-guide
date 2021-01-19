@@ -44,10 +44,11 @@ export const fetchProducts = () => {
 };
 
 export const deleteProduct = (productId) => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
         // any async code you want!
+        const token = getState().auth.token;
         const response = await fetch(
-            `${firebase.url}/products/${productId}.json`,
+            `${firebase.url}/products/${productId}.json?auth=${token}`,
             {
                 method: "DELETE",
             }
@@ -62,13 +63,17 @@ export const deleteProduct = (productId) => {
 };
 
 export const createProduct = (title, description, imageUrl, price) => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
         // any async code you want!
-        const response = await fetch(`${firebase.url}/products.json`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, description, imageUrl, price }),
-        });
+        const token = getState().auth.token;
+        const response = await fetch(
+            `${firebase.url}/products.json?auth=${token}`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, description, imageUrl, price }),
+            }
+        );
 
         const resData = await response.json();
 
@@ -89,13 +94,17 @@ export const createProduct = (title, description, imageUrl, price) => {
 // };
 
 export const updateProduct = (id, title, description, imageUrl) => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
+        const token = getState().auth.token;
         // any async code you want!
-        const response = await fetch(`${firebase.url}/products/${id}.json`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, description, imageUrl }),
-        });
+        const response = await fetch(
+            `${firebase.url}/products/${id}.json?auth=${token}`,
+            {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, description, imageUrl }),
+            }
+        );
 
         if (!response.ok) {
             throw new Error("Something went wrong!");
