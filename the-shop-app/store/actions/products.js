@@ -8,7 +8,8 @@ export const SET_PRODUCTS = "SET_PRODUCTS";
 import firebase from "../../constants/firebase";
 
 export const fetchProducts = () => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
+        const userId = getState().auth.userId;
         try {
             // any async code you want!
             const response = await fetch(`${firebase.url}/products.json`);
@@ -32,7 +33,13 @@ export const fetchProducts = () => {
                     )
                 );
 
-                dispatch({ type: SET_PRODUCTS, products: loadedProducts });
+                dispatch({
+                    type: SET_PRODUCTS,
+                    products: loadedProducts,
+                    userProducts: loadedProducts.filter(
+                        (prod) => prod.ownerId === userId
+                    ),
+                });
             }
 
             // dispatch({ type: SET_PRODUCTS, products: [] });
@@ -66,12 +73,19 @@ export const createProduct = (title, description, imageUrl, price) => {
     return async (dispatch, getState) => {
         // any async code you want!
         const token = getState().auth.token;
+        const userId = getState().auth.userId;
         const response = await fetch(
             `${firebase.url}/products.json?auth=${token}`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title, description, imageUrl, price }),
+                body: JSON.stringify({
+                    title,
+                    description,
+                    imageUrl,
+                    price,
+                    ownerId: userId,
+                }),
             }
         );
 
@@ -82,7 +96,13 @@ export const createProduct = (title, description, imageUrl, price) => {
         dispatch({
             id: resData.name,
             type: CREATE_PRODUCT,
-            productData: { title, description, imageUrl, price },
+            productData: {
+                title,
+                description,
+                imageUrl,
+                price,
+                ownerId: userId,
+            },
         });
     };
 };
