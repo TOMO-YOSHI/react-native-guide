@@ -6,17 +6,18 @@ const verifyToken = (req, res, next) => {
     const token =
         req.body.token || req.query.token || req.headers["x-access-token"];
 
-    console.log(token);
+    // console.log(token);
 
     if (token) {
-        jwt.verify(token, config.secret, (error, decoded) => {
-            console.log(error);
+        jwt.verify(token, config.accessTokenSecret, (error, decoded) => {
+            // console.log(error);
             if (error) {
                 return res.json({
                     success: false,
                     message: "Token has not been verified.",
                 });
             } else {
+                // console.log(decoded);
                 req.decoded = decoded;
                 next();
             }
