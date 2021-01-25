@@ -70,7 +70,7 @@ app.post("/api/users", (req, res) => {
                     // res.status(500).send(err.message);
                 });
         })
-        .catch((error) => console.log(error));
+        .catch((err) => console.log(err));
 });
 
 // GET USER ***********************************
@@ -92,7 +92,7 @@ app.get("/api/users", (req, res) => {
                     res.send(err.message);
                 });
         })
-        .catch((error) => console.log(error));
+        .catch((err) => console.log(err));
 });
 
 // Signup **************************************
@@ -158,12 +158,12 @@ app.post("/api/signup", (req, res) => {
                         success: true,
                         accessToken,
                         refreshToken,
-                        // acess_expires_in: config.accessTokenLife,
-                        // refresh_expires_in: config.refreshTokenLife,
-                        acess_expires_in:
+                        // accessExpiresIn: config.accessTokenLife,
+                        // refreshExpiresIn: config.refreshTokenLife,
+                        accessExpiresIn:
                             new Date().getTime() +
                             parseInt(config.accessTokenLife) * 1000,
-                        refresh_expires_in:
+                        refreshExpiresIn:
                             new Date().getTime() +
                             parseInt(config.refreshTokenLife) * 1000,
                     });
@@ -181,7 +181,7 @@ app.post("/api/signup", (req, res) => {
                     // res.status(500).send(err.message);
                 });
         })
-        .catch((error) => console.log(error));
+        .catch((err) => console.log(err));
 });
 
 // Login **************************************
@@ -232,12 +232,12 @@ app.post("/api/login", (req, res) => {
                             success: true,
                             accessToken,
                             refreshToken,
-                            // acess_expires_in: config.accessTokenLife,
-                            // refresh_expires_in: config.refreshTokenLife,
-                            acess_expires_in:
+                            // accessExpiresIn: config.accessTokenLife,
+                            // refreshExpiresIn: config.refreshTokenLife,
+                            accessExpiresIn:
                                 new Date().getTime() +
                                 parseInt(config.accessTokenLife) * 1000,
-                            refresh_expires_in:
+                            refreshExpiresIn:
                                 new Date().getTime() +
                                 parseInt(config.refreshTokenLife) * 1000,
                         });
@@ -249,7 +249,7 @@ app.post("/api/login", (req, res) => {
                     res.send(err.message);
                 });
         })
-        .catch((error) => console.log(error));
+        .catch((err) => console.log(err));
 });
 
 // VerifyToken **********************************
@@ -274,7 +274,7 @@ app.get("/api/verify", VerifyToken, (req, res, next) => {
                     );
                 });
         })
-        .catch((error) => console.log(error));
+        .catch((err) => console.log(err));
 });
 
 // Refresh Token **********************************
@@ -282,46 +282,265 @@ app.get("/api/verify", VerifyToken, (req, res, next) => {
 app.post("/api/token", (req, res) => {
     const { refreshToken } = req.body;
 
-    // if refresh token exists
-    if (refreshToken && refreshTokensList.includes(refreshToken)) {
-        jwt.verify(refreshToken, config.refreshTokenSecret, (err, user) => {
-            if (err) {
-                return res.sendStatus(403);
-            }
-            const refreshedUser = {
-                user_id: user.user_id,
-                user_name: user.user_name,
-            };
-            const accessToken = jwt.sign(
-                app.get("accessSecretKey"),
-                config.accessTokenSecret,
-                {
-                    expiresIn: config.accessTokenLife,
-                }
-            );
-            const refreshToken = jwt.sign(
-                refreshedUser,
-                app.get("refreshSecretKey"),
-                { expiresIn: config.refreshTokenLife }
-            );
-            const response = {
-                success: "true",
-                accessToken,
-                refreshToken,
-            };
+    console.log(refreshToken);
+    console.log(refreshTokensList);
 
-            res.status(200).json(response);
-        });
-    } else {
-        res.status(404).send("Invalid request");
-    }
+    // if refresh token exists
+    // if (refreshToken && refreshTokensList.includes(refreshToken)) {
+    jwt.verify(refreshToken, config.refreshTokenSecret, (err, user) => {
+        if (err) {
+            return res.sendStatus(403);
+        }
+        const refreshedUser = {
+            user_id: user.user_id,
+            user_name: user.user_name,
+        };
+        const accessToken = jwt.sign(
+            refreshedUser,
+            app.get("accessSecretKey"),
+            {
+                expiresIn: config.accessTokenLife,
+            }
+        );
+        const refreshToken = jwt.sign(
+            refreshedUser,
+            app.get("refreshSecretKey"),
+            { expiresIn: config.refreshTokenLife }
+        );
+        const response = {
+            success: "true",
+            accessToken,
+            refreshToken,
+            accessExpiresIn:
+                new Date().getTime() + parseInt(config.accessTokenLife) * 1000,
+            refreshExpiresIn:
+                new Date().getTime() + parseInt(config.refreshTokenLife) * 1000,
+        };
+
+        res.status(200).json(response);
+    });
+    // } else {
+    //     res.status(404).send("Invalid request");
+    // }
 });
 
-// app.post("/api/products", VerifyToken, (req, res) => {
-//     connectionPoolPromise.then((pool) => {
-//         pool.query(`
-//         INSERT INTO products (user_name, password) VALUES
-//         ( ${promise_mysql.escape(user_name)}, '${hashed_password}');
-// `)
-//     });
-// });
+// POST a new product **********************************
+
+app.post("/api/products", VerifyToken, (req, res) => {
+    const { title, price, imageUrl, description, ownerId } = req.body;
+
+    connectionPoolPromise
+        .then((pool) => {
+            pool.query(
+                `
+        INSERT INTO products (title, price, imageUrl, description, ownerId) VALUES
+        ( ${promise_mysql.escape(title)}, ${promise_mysql.escape(
+                    price
+                )}, ${promise_mysql.escape(imageUrl)}, ${promise_mysql.escape(
+                    description
+                )}, ${promise_mysql.escape(ownerId)});`
+            )
+                .then((results) => {
+                    res.send("Success to add a new product.");
+                })
+                .catch((err) => {
+                    console.log(err.message);
+                    res.send(err.message);
+                });
+        })
+        .catch((err) => console.log(err));
+});
+
+// GET a new product **********************************
+
+app.get("/api/products", (req, res) => {
+    const ownerId = req.query.ownerId;
+
+    let mysqlQuery;
+
+    if (ownerId) {
+        mysqlQuery = `SELECT * FROM the_shop_app.products WHERE ownerId = ${ownerId};`;
+    } else {
+        mysqlQuery = `SELECT * FROM the_shop_app.products;`;
+    }
+
+    connectionPoolPromise
+        .then((pool) => {
+            pool.query(mysqlQuery)
+                .then((results) => {
+                    res.status(200).json(results);
+                })
+                .catch((err) => {
+                    console.log(err.message);
+                    res.send(err.message);
+                });
+        })
+        .catch((err) => console.log(err));
+});
+
+// POST a new order **********************************
+
+app.post("/api/orders", VerifyToken, (req, res) => {
+    let { cartItems, userId, date } = req.body;
+
+    cartItems = [
+        // {
+        //     productId: 1,
+        //     productTitle: "product 1",
+        //     productPrice: 5.99,
+        //     quantity: 3,
+        // },
+        {
+            productId: 2,
+            productTitle: "product 2",
+            productPrice: 10.45,
+            quantity: 2,
+        },
+    ];
+
+    userId = 2;
+    date = new Date();
+
+    connectionPoolPromise
+        .then(async (pool) => {
+            const orderId = await pool
+                .query(
+                    `
+            INSERT INTO orders (user_id, date) VALUES (${promise_mysql.escape(
+                userId
+            )}, ${promise_mysql.escape(date)});
+        `
+                )
+                .catch((err) => {
+                    console.log(err.message);
+                    res.send(err.message);
+                });
+
+            cartItems.forEach((element) => {
+                const {
+                    productId,
+                    productTitle,
+                    productPrice,
+                    quantity,
+                } = element;
+
+                // console.log("in forEach");
+                // console.log(
+                //     productId,
+                //     productTitle,
+                //     productPrice,
+                //     quantity,
+                //     orderId
+                // );
+
+                pool.query(
+                    `
+                    INSERT INTO products_orders (product_id, order_id, title, price, quantity) VALUES (${promise_mysql.escape(
+                        productId
+                    )}, ${promise_mysql.escape(
+                        orderId.insertId
+                    )}, ${promise_mysql.escape(
+                        productTitle
+                    )}, ${promise_mysql.escape(
+                        productPrice
+                    )}, ${promise_mysql.escape(quantity)});
+                `
+                ).catch((err) => {
+                    console.log(err.message);
+                    res.send(err.message);
+                });
+            });
+
+            res.send("Placed new order successfully.");
+        })
+        .catch((err) => console.log(err));
+});
+
+// , VerifyToken
+app.get("/api/orders", (req, res) => {
+    const user_id = req.query.user_id;
+
+    connectionPoolPromise
+        .then((pool) => {
+            pool.query(
+                `
+                select
+                    o.order_id,
+                    date,
+                    po.product_id,
+                    po.title,
+                    po.price,
+                    po.quantity,
+                    po.price * po.quantity sum
+                from
+                    orders o
+                inner join
+                    products_orders po
+                    on o.order_id = po.order_id
+                where o.user_id = ${user_id};
+                `
+            )
+                .then((results) => {
+                    const orders = {
+                        [0]: {
+                            cartItems: [
+                                {
+                                    productId: 0,
+                                    productPrice: 0,
+                                    productTitle: "dummy-data",
+                                    quantity: 0,
+                                    sum: 0,
+                                },
+                            ],
+                            date: new Date(),
+                            totalAmount: 0.0,
+                        },
+                    };
+
+                    results.forEach((el) => {
+                        // console.log(el);
+                        // console.log(
+                        //     Object.keys(orders).indexOf(
+                        //         el.order_id.toString()
+                        //     ) === -1
+                        // );
+                        if (
+                            Object.keys(orders).indexOf(
+                                el.order_id.toString()
+                            ) === -1
+                        ) {
+                            orders[el.order_id] = {
+                                cartItems: [
+                                    {
+                                        productId: el.product_id,
+                                        productPrice: el.price,
+                                        productTitle: el.title,
+                                        quantity: el.quantity,
+                                        sum: el.sum,
+                                    },
+                                ],
+                                date: el.date,
+                                totalAmount: el.sum,
+                            };
+                        } else {
+                            orders[el.order_id].cartItems.push({
+                                productId: el.product_id,
+                                productPrice: el.price,
+                                productTitle: el.title,
+                                quantity: el.quantity,
+                                sum: el.sum,
+                            });
+                            orders[el.order_id].totalAmount += el.sum;
+                        }
+                    });
+                    delete orders[0];
+
+                    res.json(orders);
+                })
+                .catch((err) => {
+                    console.log(err.message);
+                    res.send(err.message);
+                });
+        })
+        .catch((err) => console.log(err));
+});
