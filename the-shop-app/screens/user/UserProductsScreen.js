@@ -1,5 +1,13 @@
 import React from "react";
-import { StyleSheet, FlatList, Platform, Button, Alert } from "react-native";
+import {
+    StyleSheet,
+    FlatList,
+    Platform,
+    Button,
+    Alert,
+    View,
+    Text,
+} from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 
 import ProductItem from "../../components/shop/ProductItem";
@@ -12,7 +20,7 @@ import colors from "../../constants/colors";
 import * as productsActions from "../../store/actions/products";
 
 const UserProductsScreen = (props) => {
-    const UserProducts = useSelector((state) => state.products.userProducts);
+    const userProducts = useSelector((state) => state.products.userProducts);
     const dispatch = useDispatch();
 
     const editProductHandler = (id) => {
@@ -36,9 +44,17 @@ const UserProductsScreen = (props) => {
         );
     };
 
+    if (userProducts.length === 0) {
+        return (
+            <View style={styles.centered}>
+                <Text>No products found, maybe start creating some?</Text>
+            </View>
+        );
+    }
+
     return (
         <FlatList
-            data={UserProducts}
+            data={userProducts}
             renderItem={(itemData) => (
                 <ProductItem
                     image={itemData.item.imageUrl}
@@ -97,7 +113,7 @@ UserProductsScreen.navigationOptions = (navData) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
+    centered: {
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
