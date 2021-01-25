@@ -16,7 +16,7 @@ connectionPoolPromise
             CREATE TABLE orders (
                 order_id    int     AUTO_INCREMENT,
                 user_id     int,
-                data        datetime,
+                date        datetime,
                 PRIMARY KEY (order_id),
                 FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
             );
@@ -26,6 +26,7 @@ connectionPoolPromise
                 price           double          NOT NULL,
                 imageUrl        text,
                 description     varchar(255),
+                ownerId         int,
                 PRIMARY KEY (product_id)
             );
             CREATE TABLE products_orders (
