@@ -156,16 +156,19 @@ app.post("/api/signup", (req, res) => {
                     refreshTokensList.push(refreshToken);
                     res.status(201).json({
                         success: true,
+                        user_id: results.insertId,
                         accessToken,
                         refreshToken,
                         // accessExpiresIn: config.accessTokenLife,
                         // refreshExpiresIn: config.refreshTokenLife,
                         accessExpiresIn:
-                            new Date().getTime() +
-                            parseInt(config.accessTokenLife) * 1000,
+                            // new Date().getTime() +
+                            // parseInt(config.accessTokenLife) * 1000,
+                            parseInt(config.accessTokenLife),
                         refreshExpiresIn:
-                            new Date().getTime() +
-                            parseInt(config.refreshTokenLife) * 1000,
+                            // new Date().getTime() +
+                            // parseInt(config.refreshTokenLife) * 1000,
+                            parseInt(config.refreshTokenLife),
                     });
                     // res.status(201).send({
                     //     url: `/api/users/${results.insertId}`,
@@ -189,7 +192,7 @@ app.post("/api/signup", (req, res) => {
 app.post("/api/login", (req, res) => {
     const { user_name, password } = req.body;
 
-    // console.log(user_name);
+    // console.log(req.body);
 
     connectionPoolPromise
         .then((pool) => {
@@ -228,8 +231,9 @@ app.post("/api/login", (req, res) => {
 
                         refreshTokensList.push(refreshToken);
 
-                        res.json({
+                        res.status(200).send({
                             success: true,
+                            user_id: results[0].user_id,
                             accessToken,
                             refreshToken,
                             // accessExpiresIn: config.accessTokenLife,
@@ -282,8 +286,8 @@ app.get("/api/verify", VerifyToken, (req, res, next) => {
 app.post("/api/token", (req, res) => {
     const { refreshToken } = req.body;
 
-    console.log(refreshToken);
-    console.log(refreshTokensList);
+    // console.log(refreshToken);
+    // console.log(refreshTokensList);
 
     // if refresh token exists
     // if (refreshToken && refreshTokensList.includes(refreshToken)) {
