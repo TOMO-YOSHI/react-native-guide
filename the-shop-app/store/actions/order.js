@@ -8,17 +8,29 @@ import firebase from "../../constants/firebase";
 export const fetchOrders = () => {
     return async (dispatch, getState) => {
         const userId = getState().auth.userId;
+        const token = getState().auth.token;
         try {
             // any async code you want!
             const response = await fetch(
-                `${firebase.url}/orders/${userId}.json`
-            );
+                `http://localhost:8080/api/orders?user_id=${userId}&token=${token}`
+            )
+                .then((response) => {
+                    // console.log("response", response);
+                    return response.json();
+                })
+                .then((result) => {
+                    // console.log("result", result);
+                    return result;
+                })
+                .catch((err) => {
+                    throw new Error("Something went wrong!");
+                });
 
-            if (!response.ok) {
-                throw new Error("Something went wrong!");
-            }
+            // if (!response.ok) {
+            //     throw new Error("Something went wrong!");
+            // }
 
-            const resData = await response.json();
+            const resData = response;
             const loadedOrders = [];
 
             for (const key in resData) {
@@ -47,28 +59,37 @@ export const addOrder = (cartItems, totalAmount) => {
         const date = new Date();
 
         const response = await fetch(
-            `${firebase.url}/orders/${userId}.json?auth=${token}`,
+            `http://localhost:8080/api/orders?token=${token}`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     cartItems,
                     totalAmount,
-                    date: date.toISOString(),
+                    userId,
                 }),
             }
-        );
+        )
+            .then((response) => {
+                // console.log("response", response);
+                return response.json();
+            })
+            .then((result) => {
+                // console.log("result", result);
+                return result;
+            })
+            .catch((err) => {
+                throw new Error("Something went wrong!");
+            });
 
-        const resData = await response.json();
+        const resData = response;
 
-        if (!response.ok) {
-            throw new Error("Something went wrong!");
-        }
+        console.log(resData.id);
 
         dispatch({
             type: ADD_ORDER,
             orderData: {
-                id: resData.name,
+                id: resData.id,
                 items: cartItems,
                 amount: totalAmount,
                 date: date,

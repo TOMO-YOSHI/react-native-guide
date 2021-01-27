@@ -86,6 +86,9 @@ export const login = (email, password) => {
             .then((result) => {
                 // console.log("result", result);
                 return result;
+            })
+            .catch((err) => {
+                throw new Error("Something went wrong!");
             });
 
         // console.log(response);
