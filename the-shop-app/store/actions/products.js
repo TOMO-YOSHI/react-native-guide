@@ -12,26 +12,42 @@ export const fetchProducts = () => {
         const userId = getState().auth.userId;
         try {
             // any async code you want!
-            const response = await fetch(`${firebase.url}/products.json`);
+            const response = await fetch(`http://localhost:8080/api/products`)
+                .then((response) => {
+                    // console.log("response", response);
+                    return response.json();
+                })
+                .then((result) => {
+                    // console.log("result", result);
+                    return result;
+                })
+                .catch((err) => {
+                    throw new Error("Something went wrong!");
+                });
 
-            if (!response.ok) {
-                throw new Error("Something went wrong!");
-            }
+            // if (!response.ok) {
+            //     throw new Error("Something went wrong!");
+            // }
 
-            const resData = await response.json();
+            const resData = response;
             const loadedProducts = [];
 
-            for (const key in resData) {
+            // console.log(resData);
+
+            resData.forEach((el) => {
+                const id = el.product_id;
                 loadedProducts.push(
                     new Product(
-                        key,
-                        resData[key].ownerId,
-                        resData[key].title,
-                        resData[key].imageUrl,
-                        resData[key].description,
-                        resData[key].price
+                        id,
+                        el.ownerId,
+                        el.title,
+                        el.imageUrl,
+                        el.description,
+                        el.price
                     )
                 );
+
+                // console.log(loadedProducts);
 
                 dispatch({
                     type: SET_PRODUCTS,
@@ -40,7 +56,7 @@ export const fetchProducts = () => {
                         (prod) => prod.ownerId === userId
                     ),
                 });
-            }
+            });
 
             // dispatch({ type: SET_PRODUCTS, products: [] });
         } catch (error) {

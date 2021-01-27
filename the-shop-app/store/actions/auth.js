@@ -18,89 +18,103 @@ export const authenticate = (userId, token, expiryTime) => {
 
 export const signup = (email, password) => {
     return async (dispatch) => {
-        const response = await fetch(
-            `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${firebase.apiKey}`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password,
-                    returnSecureToken: true,
-                }),
-            }
-        );
+        const response = await fetch(`http://localhost:8080/api/signup`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                user_name: email,
+                password: password,
+            }),
+        })
+            .then((response) => {
+                // console.log("response", response);
+                return response.json();
+            })
+            .then((result) => {
+                // console.log("result", result);
+                return result;
+            });
 
-        if (!response.ok) {
-            const errorResData = await response.json();
-            const errorId = errorResData.error.message;
+        // console.log(response);
+
+        if (!response.success) {
+            // const errorResData = await response.json();
+            // const errorId = errorResData.error.message;
             let message = "Something went wrong!";
-            if (errorId === "EMAIL_EXISTS") {
-                message = "This email exists already!";
-            }
+            // if (errorId === "EMAIL_NOT_FOUND") {
+            //     message = "This email could not be found!";
+            // } else if (errorId === "INVALID_PASSWORD") {
+            //     message = "This password is not valid!";
+            // }
             throw new Error(message);
         }
 
-        const resData = await response.json();
+        const resData = response;
         // console.log(resData);
         dispatch(
             authenticate(
-                resData.localId,
-                resData.idToken,
-                parseInt(resData.expiresIn) * 1000
+                resData.user_id,
+                resData.accessToken,
+                parseInt(resData.accessExpiresIn) * 1000
             )
         );
         const expirationDate = new Date(
-            new Date().getTime() + parseInt(resData.expiresIn) * 1000
+            new Date().getTime() + parseInt(resData.accessExpiresIn) * 1000
         );
-        saveDataToStorage(resData.idToken, resData.localId, expirationDate);
+        saveDataToStorage(resData.accessToken, resData.user_id, expirationDate);
     };
 };
 
 export const login = (email, password) => {
     return async (dispatch) => {
-        const response = await fetch(
-            `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${firebase.apiKey}`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password,
-                    returnSecureToken: true,
-                }),
-            }
-        );
+        const response = await fetch(`http://localhost:8080/api/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                user_name: email,
+                password: password,
+            }),
+        })
+            .then((response) => {
+                // console.log("response", response);
+                return response.json();
+            })
+            .then((result) => {
+                // console.log("result", result);
+                return result;
+            });
 
-        if (!response.ok) {
-            const errorResData = await response.json();
-            const errorId = errorResData.error.message;
+        // console.log(response);
+
+        if (!response.success) {
+            // const errorResData = await response.json();
+            // const errorId = errorResData.error.message;
             let message = "Something went wrong!";
-            if (errorId === "EMAIL_NOT_FOUND") {
-                message = "This email could not be found!";
-            } else if (errorId === "INVALID_PASSWORD") {
-                message = "This password is not valid!";
-            }
+            // if (errorId === "EMAIL_NOT_FOUND") {
+            //     message = "This email could not be found!";
+            // } else if (errorId === "INVALID_PASSWORD") {
+            //     message = "This password is not valid!";
+            // }
             throw new Error(message);
         }
 
-        const resData = await response.json();
+        const resData = response;
         // console.log(resData);
         dispatch(
             authenticate(
-                resData.localId,
-                resData.idToken,
-                parseInt(resData.expiresIn) * 1000
+                resData.user_id,
+                resData.accessToken,
+                parseInt(resData.accessExpiresIn) * 1000
             )
         );
         const expirationDate = new Date(
-            new Date().getTime() + parseInt(resData.expiresIn) * 1000
+            new Date().getTime() + parseInt(resData.accessExpiresIn) * 1000
         );
-        saveDataToStorage(resData.idToken, resData.localId, expirationDate);
+        saveDataToStorage(resData.accessToken, resData.user_id, expirationDate);
     };
 };
 

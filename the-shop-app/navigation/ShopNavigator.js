@@ -116,7 +116,7 @@ const ShopNavigator = createDrawerNavigator(
                             color={colors.primary}
                             onPress={() => {
                                 dispatch(authActions.logout());
-                                // props.navigation.navigate("Auth"); // This is not necessary because the navigation logic is written in NavigationContainer.js
+                                props.navigation.navigate("Auth"); // This is not necessary because the navigation logic is written in NavigationContainer.js *** This line is necessary when Node.js server is used.
                             }}
                         />
                     </SafeAreaView>
