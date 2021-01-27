@@ -385,25 +385,9 @@ app.get("/api/products", (req, res) => {
 // POST a new order **********************************
 
 app.post("/api/orders", VerifyToken, (req, res) => {
-    let { cartItems, userId, date } = req.body;
-
-    cartItems = [
-        // {
-        //     productId: 1,
-        //     productTitle: "product 1",
-        //     productPrice: 5.99,
-        //     quantity: 3,
-        // },
-        {
-            productId: 2,
-            productTitle: "product 2",
-            productPrice: 10.45,
-            quantity: 2,
-        },
-    ];
-
-    userId = 2;
-    date = new Date();
+    const { cartItems, userId } = req.body;
+    const date = new Date();
+    let order_id;
 
     connectionPoolPromise
         .then(async (pool) => {
@@ -415,6 +399,10 @@ app.post("/api/orders", VerifyToken, (req, res) => {
             )}, ${promise_mysql.escape(date)});
         `
                 )
+                .then((results) => {
+                    // console.log("test", results.insertId);
+                    order_id = results.insertId;
+                })
                 .catch((err) => {
                     console.log(err.message);
                     res.send(err.message);
@@ -428,21 +416,12 @@ app.post("/api/orders", VerifyToken, (req, res) => {
                     quantity,
                 } = element;
 
-                // console.log("in forEach");
-                // console.log(
-                //     productId,
-                //     productTitle,
-                //     productPrice,
-                //     quantity,
-                //     orderId
-                // );
-
                 pool.query(
                     `
                     INSERT INTO products_orders (product_id, order_id, title, price, quantity) VALUES (${promise_mysql.escape(
                         productId
                     )}, ${promise_mysql.escape(
-                        orderId.insertId
+                        order_id
                     )}, ${promise_mysql.escape(
                         productTitle
                     )}, ${promise_mysql.escape(
@@ -454,14 +433,16 @@ app.post("/api/orders", VerifyToken, (req, res) => {
                     res.send(err.message);
                 });
             });
-
-            res.send("Placed new order successfully.");
+            res.send({
+                id: order_id,
+                date: date,
+            });
         })
         .catch((err) => console.log(err));
 });
 
-// , VerifyToken
-app.get("/api/orders", (req, res) => {
+// GET orders
+app.get("/api/orders", VerifyToken, (req, res) => {
     const user_id = req.query.user_id;
 
     connectionPoolPromise
@@ -538,6 +519,8 @@ app.get("/api/orders", (req, res) => {
                         }
                     });
                     delete orders[0];
+
+                    // console.log(orders);
 
                     res.json(orders);
                 })
