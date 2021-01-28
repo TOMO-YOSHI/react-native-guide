@@ -20,7 +20,15 @@ const ProductDetailScreen = (props) => {
             (product) => product.id === productId
         )
     );
+    // console.log(selectedProduct);
+
     const dispatch = useDispatch();
+
+    // The code below is needed to avoid the error!!!
+    if (selectedProduct === undefined) {
+        return <View></View>;
+    }
+    // **********************************************
 
     return (
         <ScrollView>

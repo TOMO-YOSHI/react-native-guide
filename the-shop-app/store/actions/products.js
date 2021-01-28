@@ -5,14 +5,12 @@ export const CREATE_PRODUCT = "CREATE_PRODUCT";
 export const UPDATE_PRODUCT = "UPDATE_PRODUCT";
 export const SET_PRODUCTS = "SET_PRODUCTS";
 
-import firebase from "../../constants/firebase";
-
 export const fetchProducts = () => {
     return async (dispatch, getState) => {
         const userId = getState().auth.userId;
         try {
             // any async code you want!
-            const response = await fetch(`http://localhost:8080/api/products`)
+            const resData = await fetch(`http://localhost:8080/api/products`)
                 .then((response) => {
                     // console.log("response", response);
                     return response.json();
@@ -25,29 +23,21 @@ export const fetchProducts = () => {
                     throw new Error("Something went wrong!");
                 });
 
-            // if (!response.ok) {
-            //     throw new Error("Something went wrong!");
-            // }
-
-            const resData = response;
             const loadedProducts = [];
-
-            // console.log(resData);
 
             resData.forEach((el) => {
                 const id = el.product_id;
+                const { ownerId, title, imageUrl, description, price } = el;
                 loadedProducts.push(
                     new Product(
                         id,
-                        el.ownerId,
-                        el.title,
-                        el.imageUrl,
-                        el.description,
-                        el.price
+                        ownerId,
+                        title,
+                        imageUrl,
+                        description,
+                        price
                     )
                 );
-
-                // console.log(loadedProducts);
 
                 dispatch({
                     type: SET_PRODUCTS,
@@ -57,8 +47,6 @@ export const fetchProducts = () => {
                     ),
                 });
             });
-
-            // dispatch({ type: SET_PRODUCTS, products: [] });
         } catch (error) {
             // send to custom analytics server
             throw error;
@@ -68,90 +56,107 @@ export const fetchProducts = () => {
 
 export const deleteProduct = (productId) => {
     return async (dispatch, getState) => {
-        // any async code you want!
-        const token = getState().auth.token;
-        const response = await fetch(
-            `${firebase.url}/products/${productId}.json?auth=${token}`,
-            {
-                method: "DELETE",
-            }
-        );
+        try {
+            // any async code you want!
+            const token = getState().auth.token;
+            await fetch(
+                `http://localhost:8080/api/products/${productId}?token=${token}`,
+                {
+                    method: "DELETE",
+                }
+            )
+                .then((response) => {
+                    return response.json();
+                })
+                .then((result) => {
+                    return result;
+                })
+                .catch((err) => {
+                    throw new Error("Something went wrong!");
+                });
 
-        if (!response.ok) {
-            throw new Error("Something went wrong!");
+            dispatch({ type: DELETE_PRODUCT, pid: productId });
+        } catch (error) {
+            // send to custom analytics server
+            throw error;
         }
-
-        dispatch({ type: DELETE_PRODUCT, pid: productId });
     };
 };
 
 export const createProduct = (title, description, imageUrl, price) => {
     return async (dispatch, getState) => {
-        // any async code you want!
-        const token = getState().auth.token;
-        const userId = getState().auth.userId;
-        const response = await fetch(
-            `${firebase.url}/products.json?auth=${token}`,
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
+        try {
+            // any async code you want!
+            const token = getState().auth.token;
+            const userId = getState().auth.userId;
+            const resData = await fetch(
+                `http://localhost:8080/api/products?token=${token}`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        title,
+                        description,
+                        imageUrl,
+                        price,
+                        ownerId: userId,
+                    }),
+                }
+            )
+                .then((response) => {
+                    return response.json();
+                })
+                .then((result) => {
+                    return result;
+                })
+                .catch((err) => {
+                    throw new Error("Something went wrong!");
+                });
+
+            dispatch({
+                id: resData.product_id,
+                type: CREATE_PRODUCT,
+                productData: {
                     title,
                     description,
                     imageUrl,
                     price,
                     ownerId: userId,
-                }),
-            }
-        );
-
-        const resData = await response.json();
-
-        // console.log(resData);
-
-        dispatch({
-            id: resData.name,
-            type: CREATE_PRODUCT,
-            productData: {
-                title,
-                description,
-                imageUrl,
-                price,
-                ownerId: userId,
-            },
-        });
+                },
+            });
+        } catch (error) {
+            // send to custom analytics server
+            throw error;
+        }
     };
 };
-// export const createProduct = (title, description, imageUrl, price) => {
-//     return {
-//         type: CREATE_PRODUCT,
-//         productData: { title, description, imageUrl, price },
-//     };
-// };
 
 export const updateProduct = (id, title, description, imageUrl) => {
     return async (dispatch, getState) => {
         const token = getState().auth.token;
         // any async code you want!
-        const response = await fetch(
-            `${firebase.url}/products/${id}.json?auth=${token}`,
-            {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title, description, imageUrl }),
-            }
-        );
+        try {
+            await fetch(
+                `http://localhost:8080/api/products/${id}?token=${token}`,
+                {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title, description, imageUrl }),
+                }
+            ).catch((err) => {
+                throw new Error("Something went wrong!");
+            });
 
-        if (!response.ok) {
-            throw new Error("Something went wrong!");
+            // const resData = await response.json();
+
+            dispatch({
+                type: UPDATE_PRODUCT,
+                pid: id,
+                productData: { title, description, imageUrl },
+            });
+        } catch (error) {
+            // send to custom analytics server
+            throw error;
         }
-
-        // const resData = await response.json();
-
-        dispatch({
-            type: UPDATE_PRODUCT,
-            pid: id,
-            productData: { title, description, imageUrl },
-        });
     };
 };
