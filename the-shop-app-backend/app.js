@@ -18,17 +18,10 @@ let server = app.listen(app.settings.port, () => {
     console.log("Server ready on", app.settings.port);
 });
 
-// app.use(express.static('public'));
-
-// app.use(express.urlencoded({ extended: true }));
 app.set("accessSecretKey", config.accessTokenSecret);
 app.set("refreshSecretKey", config.refreshTokenSecret);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
-
-// app.get('/', (req, res)=>{
-//     res.sendFile(path.join(__dirname, 'public/', 'index.html'));
-// })
 
 // const router = require("./routes/index.js");
 // app.use("/api", router);
@@ -37,9 +30,7 @@ app.use(express.json());
 
 app.post("/api/users", (req, res) => {
     const { user_name, password } = req.body;
-    // console.log(req);
     let hashed_password = bcrypt.hashSync(password, 10);
-    // console.log(hashed_password);
 
     connectionPoolPromise
         .then((pool) => {
@@ -54,7 +45,6 @@ app.post("/api/users", (req, res) => {
                         "content-location",
                         `localhost:8080/api/users/${results.insertId}`
                     );
-                    console.log("Successfully inserted a new row!");
                     res.status(201).send({
                         url: `/api/users/${results.insertId}`,
                         data: {
@@ -99,9 +89,7 @@ app.get("/api/users", (req, res) => {
 
 app.post("/api/signup", (req, res) => {
     const { user_name, password } = req.body;
-    // console.log(req);
     let hashed_password = bcrypt.hashSync(password, 10);
-    // console.log(hashed_password);
 
     connectionPoolPromise
         .then(async (pool) => {
@@ -129,11 +117,6 @@ app.post("/api/signup", (req, res) => {
             `
             )
                 .then((results) => {
-                    // res.set(
-                    //     "content-location",
-                    //     `localhost:8080/api/users/${results.insertId}`
-                    // );
-                    console.log("Successfully inserted a new row!");
                     const payload = {
                         user_id: results.insertId,
                         user_name: user_name,
@@ -154,34 +137,18 @@ app.post("/api/signup", (req, res) => {
                     );
 
                     refreshTokensList.push(refreshToken);
-                    res.status(201).json({
+                    res.status(201).send({
                         success: true,
                         user_id: results.insertId,
                         accessToken,
                         refreshToken,
-                        // accessExpiresIn: config.accessTokenLife,
-                        // refreshExpiresIn: config.refreshTokenLife,
-                        accessExpiresIn:
-                            // new Date().getTime() +
-                            // parseInt(config.accessTokenLife) * 1000,
-                            parseInt(config.accessTokenLife),
-                        refreshExpiresIn:
-                            // new Date().getTime() +
-                            // parseInt(config.refreshTokenLife) * 1000,
-                            parseInt(config.refreshTokenLife),
+                        accessExpiresIn: parseInt(config.accessTokenLife),
+                        refreshExpiresIn: parseInt(config.refreshTokenLife),
                     });
-                    // res.status(201).send({
-                    //     url: `/api/users/${results.insertId}`,
-                    //     data: {
-                    //         user_id: `${results.insertId}`,
-                    //         user_name: `${user_name}`,
-                    //     },
-                    // });
                 })
                 .catch((err) => {
                     console.log(err.message);
                     res.send(err.message);
-                    // res.status(500).send(err.message);
                 });
         })
         .catch((err) => console.log(err));
@@ -192,8 +159,6 @@ app.post("/api/signup", (req, res) => {
 app.post("/api/login", (req, res) => {
     const { user_name, password } = req.body;
 
-    // console.log(req.body);
-
     connectionPoolPromise
         .then((pool) => {
             pool.query(
@@ -202,12 +167,8 @@ app.post("/api/login", (req, res) => {
         `
             )
                 .then((results) => {
-                    // console.log(
-                    //     bcrypt.compareSync(password, results[0].password)
-                    // );
-                    // if (results[0].password != password) {
                     if (!bcrypt.compareSync(password, results[0].password)) {
-                        res.json({
+                        res.send({
                             success: false,
                             message: "Your email or password is wrong.",
                         });
@@ -231,13 +192,11 @@ app.post("/api/login", (req, res) => {
 
                         refreshTokensList.push(refreshToken);
 
-                        res.status(200).send({
+                        res.status(200).json({
                             success: true,
                             user_id: results[0].user_id,
                             accessToken,
                             refreshToken,
-                            // accessExpiresIn: config.accessTokenLife,
-                            // refreshExpiresIn: config.refreshTokenLife,
                             accessExpiresIn:
                                 new Date().getTime() +
                                 parseInt(config.accessTokenLife) * 1000,
@@ -251,31 +210,6 @@ app.post("/api/login", (req, res) => {
                 .catch((err) => {
                     console.log(err.message);
                     res.send(err.message);
-                });
-        })
-        .catch((err) => console.log(err));
-});
-
-// VerifyToken **********************************
-
-app.get("/api/verify", VerifyToken, (req, res, next) => {
-    // Write a process that you want to run after verification below:
-
-    connectionPoolPromise
-        .then((pool) => {
-            pool.query(
-                `
-                select * from users where user_name like '%${req.decoded.user_name}%';
-            `
-            )
-                .then((results) => {
-                    // res.status(200).send(results);
-                    res.status(200).send(`Hello! ${results[0].user_name}!`);
-                })
-                .catch((err) => {
-                    res.status(500).send(
-                        "Failed in the authentication process"
-                    );
                 });
         })
         .catch((err) => console.log(err));
@@ -345,7 +279,10 @@ app.post("/api/products", VerifyToken, (req, res) => {
                 )}, ${promise_mysql.escape(ownerId)});`
             )
                 .then((results) => {
-                    res.send("Success to add a new product.");
+                    res.send({
+                        success: true,
+                        product_id: results.insertId,
+                    });
                 })
                 .catch((err) => {
                     console.log(err.message);
@@ -355,7 +292,7 @@ app.post("/api/products", VerifyToken, (req, res) => {
         .catch((err) => console.log(err));
 });
 
-// GET a new product **********************************
+// GET products **********************************
 
 app.get("/api/products", (req, res) => {
     const ownerId = req.query.ownerId;
@@ -382,6 +319,61 @@ app.get("/api/products", (req, res) => {
         .catch((err) => console.log(err));
 });
 
+// Delete product **********************************
+
+app.delete("/api/products/:product_id", VerifyToken, (req, res) => {
+    const product_id = req.params.product_id;
+
+    connectionPoolPromise.then(async (pool) => {
+        pool.query(
+            `
+                delete from products where product_id = ${promise_mysql.escape(
+                    product_id
+                )};
+                `
+        )
+            .then((results) => {
+                res.send({
+                    success: true,
+                    message: `Deleted the product id of which is ${product_id}`,
+                });
+            })
+            .catch((err) => {
+                console.log(err);
+                res.send(err.message);
+            });
+    });
+});
+
+// Updata product **********************************
+
+app.put("/api/products/:product_id", VerifyToken, (req, res) => {
+    const product_id = req.params.product_id;
+    const { title, imageUrl, description } = req.body;
+
+    connectionPoolPromise.then((pool) => {
+        pool.query(
+            `
+            update products
+            set
+                title = ${promise_mysql.escape(title)},
+                imageUrl = ${promise_mysql.escape(imageUrl)},
+                description = ${promise_mysql.escape(description)}
+            where
+                product_id = ${promise_mysql.escape(product_id)};
+            `
+        ).then((results) => {
+            res.send({
+                success: true,
+                message: `Updated the product id of which is ${product_id}`,
+            }).catch((err) => {
+                console.log(err);
+                res.send(err.message);
+            });
+        });
+    });
+});
+
 // POST a new order **********************************
 
 app.post("/api/orders", VerifyToken, (req, res) => {
@@ -391,7 +383,7 @@ app.post("/api/orders", VerifyToken, (req, res) => {
 
     connectionPoolPromise
         .then(async (pool) => {
-            const orderId = await pool
+            order_id = await pool
                 .query(
                     `
             INSERT INTO orders (user_id, date) VALUES (${promise_mysql.escape(
@@ -400,13 +392,14 @@ app.post("/api/orders", VerifyToken, (req, res) => {
         `
                 )
                 .then((results) => {
-                    // console.log("test", results.insertId);
-                    order_id = results.insertId;
+                    return results.insertId;
                 })
                 .catch((err) => {
                     console.log(err.message);
                     res.send(err.message);
                 });
+
+            // console.log(order_id);
 
             cartItems.forEach((element) => {
                 const {
@@ -441,7 +434,7 @@ app.post("/api/orders", VerifyToken, (req, res) => {
         .catch((err) => console.log(err));
 });
 
-// GET orders
+// GET orders *************************************
 app.get("/api/orders", VerifyToken, (req, res) => {
     const user_id = req.query.user_id;
 
@@ -483,12 +476,6 @@ app.get("/api/orders", VerifyToken, (req, res) => {
                     };
 
                     results.forEach((el) => {
-                        // console.log(el);
-                        // console.log(
-                        //     Object.keys(orders).indexOf(
-                        //         el.order_id.toString()
-                        //     ) === -1
-                        // );
                         if (
                             Object.keys(orders).indexOf(
                                 el.order_id.toString()
@@ -520,13 +507,36 @@ app.get("/api/orders", VerifyToken, (req, res) => {
                     });
                     delete orders[0];
 
-                    // console.log(orders);
-
                     res.json(orders);
                 })
                 .catch((err) => {
                     console.log(err.message);
                     res.send(err.message);
+                });
+        })
+        .catch((err) => console.log(err));
+});
+
+// VerifyToken Test Code **********************************
+
+app.get("/api/verify", VerifyToken, (req, res, next) => {
+    // Write a process that you want to run after verification below:
+
+    connectionPoolPromise
+        .then((pool) => {
+            pool.query(
+                `
+                select * from users where user_name like '%${req.decoded.user_name}%';
+            `
+            )
+                .then((results) => {
+                    // res.status(200).send(results);
+                    res.status(200).send(`Hello! ${results[0].user_name}!`);
+                })
+                .catch((err) => {
+                    res.status(500).send(
+                        "Failed in the authentication process"
+                    );
                 });
         })
         .catch((err) => console.log(err));

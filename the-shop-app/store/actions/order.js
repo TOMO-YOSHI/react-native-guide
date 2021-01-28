@@ -3,8 +3,6 @@ import Order from "../../models/order";
 export const ADD_ORDER = "ADD_ORDER";
 export const SET_ORDERS = "SET_ORDERS";
 
-import firebase from "../../constants/firebase";
-
 export const fetchOrders = () => {
     return async (dispatch, getState) => {
         const userId = getState().auth.userId;
@@ -67,6 +65,7 @@ export const addOrder = (cartItems, totalAmount) => {
                     cartItems,
                     totalAmount,
                     userId,
+                    // date,
                 }),
             }
         )
@@ -84,7 +83,7 @@ export const addOrder = (cartItems, totalAmount) => {
 
         const resData = response;
 
-        console.log(resData.id);
+        // console.log(resData.id);
 
         dispatch({
             type: ADD_ORDER,

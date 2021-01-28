@@ -17,13 +17,13 @@ import * as ordersActions from "../../store/actions/order";
 import colors from "../../constants/colors";
 
 const OrdersScreen = (props) => {
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const orders = useSelector((state) => state.orders.orders);
     const dispatch = useDispatch();
 
     useEffect(() => {
-        setIsLoading(true);
+        // setIsLoading(true);
         dispatch(ordersActions.fetchOrders()).then(() => setIsLoading(false));
     }, [dispatch]);
 
