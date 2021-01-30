@@ -149,6 +149,8 @@ export const updateProduct = (id, title, description, imageUrl) => {
 
             // const resData = await response.json();
 
+            console.log(imageUrl);
+
             dispatch({
                 type: UPDATE_PRODUCT,
                 pid: id,
