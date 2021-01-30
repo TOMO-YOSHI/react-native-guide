@@ -66,7 +66,6 @@ app.post("/api/users", (req, res) => {
 // GET USER ***********************************
 
 app.get("/api/users", (req, res) => {
-    // const { user_name, password } = req.body;
     connectionPoolPromise
         .then((pool) => {
             pool.query(
@@ -220,11 +219,6 @@ app.post("/api/login", (req, res) => {
 app.post("/api/token", (req, res) => {
     const { refreshToken } = req.body;
 
-    // console.log(refreshToken);
-    // console.log(refreshTokensList);
-
-    // if refresh token exists
-    // if (refreshToken && refreshTokensList.includes(refreshToken)) {
     jwt.verify(refreshToken, config.refreshTokenSecret, (err, user) => {
         if (err) {
             return res.sendStatus(403);

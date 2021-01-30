@@ -16,106 +16,118 @@ export const authenticate = (userId, token, expiryTime) => {
 
 export const signup = (email, password) => {
     return async (dispatch) => {
-        const response = await fetch(`http://localhost:8080/api/signup`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                user_name: email,
-                password: password,
-            }),
-        })
-            .then((response) => {
-                // console.log("response", response);
-                return response.json();
+        try {
+            const response = await fetch(`http://localhost:8080/api/signup`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    user_name: email,
+                    password: password,
+                }),
             })
-            .then((result) => {
-                // console.log("result", result);
-                return result;
-            });
+                .then((response) => {
+                    return response.json();
+                })
+                .then((result) => {
+                    return result;
+                });
 
-        // console.log(response);
+            if (!response.success) {
+                // const errorResData = await response.json();
+                // const errorId = errorResData.error.message;
+                let message = "Something went wrong!";
+                // if (errorId === "EMAIL_NOT_FOUND") {
+                //     message = "This email could not be found!";
+                // } else if (errorId === "INVALID_PASSWORD") {
+                //     message = "This password is not valid!";
+                // }
+                throw new Error(message);
+            }
 
-        if (!response.success) {
-            // const errorResData = await response.json();
-            // const errorId = errorResData.error.message;
-            let message = "Something went wrong!";
-            // if (errorId === "EMAIL_NOT_FOUND") {
-            //     message = "This email could not be found!";
-            // } else if (errorId === "INVALID_PASSWORD") {
-            //     message = "This password is not valid!";
-            // }
+            const resData = response;
+            // console.log(resData);
+            dispatch(
+                authenticate(
+                    resData.user_id,
+                    resData.accessToken,
+                    parseInt(resData.accessExpiresIn) * 1000
+                )
+            );
+            const expirationDate = new Date(
+                new Date().getTime() + parseInt(resData.accessExpiresIn) * 1000
+            );
+            saveDataToStorage(
+                resData.accessToken,
+                resData.user_id,
+                expirationDate
+            );
+        } catch (err) {
             throw new Error(message);
         }
-
-        const resData = response;
-        // console.log(resData);
-        dispatch(
-            authenticate(
-                resData.user_id,
-                resData.accessToken,
-                parseInt(resData.accessExpiresIn) * 1000
-            )
-        );
-        const expirationDate = new Date(
-            new Date().getTime() + parseInt(resData.accessExpiresIn) * 1000
-        );
-        saveDataToStorage(resData.accessToken, resData.user_id, expirationDate);
     };
 };
 
 export const login = (email, password) => {
     return async (dispatch) => {
-        const response = await fetch(`http://localhost:8080/api/login`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                user_name: email,
-                password: password,
-            }),
-        })
-            .then((response) => {
-                // console.log("response", response);
-                return response.json();
+        try {
+            const response = await fetch(`http://localhost:8080/api/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    user_name: email,
+                    password: password,
+                }),
             })
-            .then((result) => {
-                // console.log("result", result);
-                return result;
-            })
-            .catch((err) => {
-                throw new Error("Something went wrong!");
-            });
+                .then((response) => {
+                    // console.log("response", response);
+                    return response.json();
+                })
+                .then((result) => {
+                    // console.log("result", result);
+                    return result;
+                })
+                .catch((err) => {
+                    throw new Error("Something went wrong!");
+                });
 
-        // console.log(response);
+            // console.log(response);
 
-        if (!response.success) {
-            // const errorResData = await response.json();
-            // const errorId = errorResData.error.message;
-            let message = "Something went wrong!";
-            // if (errorId === "EMAIL_NOT_FOUND") {
-            //     message = "This email could not be found!";
-            // } else if (errorId === "INVALID_PASSWORD") {
-            //     message = "This password is not valid!";
-            // }
+            if (!response.success) {
+                // const errorResData = await response.json();
+                // const errorId = errorResData.error.message;
+                let message = "Something went wrong!";
+                // if (errorId === "EMAIL_NOT_FOUND") {
+                //     message = "This email could not be found!";
+                // } else if (errorId === "INVALID_PASSWORD") {
+                //     message = "This password is not valid!";
+                // }
+                throw new Error(message);
+            }
+
+            const resData = response;
+            // console.log(resData);
+            dispatch(
+                authenticate(
+                    resData.user_id,
+                    resData.accessToken,
+                    parseInt(resData.accessExpiresIn) * 1000
+                )
+            );
+            const expirationDate = new Date(
+                new Date().getTime() + parseInt(resData.accessExpiresIn) * 1000
+            );
+            saveDataToStorage(
+                resData.accessToken,
+                resData.user_id,
+                expirationDate
+            );
+        } catch (err) {
             throw new Error(message);
         }
-
-        const resData = response;
-        // console.log(resData);
-        dispatch(
-            authenticate(
-                resData.user_id,
-                resData.accessToken,
-                parseInt(resData.accessExpiresIn) * 1000
-            )
-        );
-        const expirationDate = new Date(
-            new Date().getTime() + parseInt(resData.accessExpiresIn) * 1000
-        );
-        saveDataToStorage(resData.accessToken, resData.user_id, expirationDate);
     };
 };
 
