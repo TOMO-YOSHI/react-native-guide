@@ -30,6 +30,7 @@ export const fetchProducts = () => {
                 const { ownerId, title, imageUrl, description, price } = el;
                 loadedProducts.push(
                     new Product(
+                        // { id: id + "" + ownerId + new Date() },
                         id,
                         ownerId,
                         title,
@@ -113,10 +114,12 @@ export const createProduct = (title, description, imageUrl, price) => {
                     throw new Error("Something went wrong!");
                 });
 
+                // console.log(resData.product_id)
+
             dispatch({
-                id: resData.product_id,
                 type: CREATE_PRODUCT,
                 productData: {
+                    pid: resData.product_id,
                     title,
                     description,
                     imageUrl,
@@ -148,8 +151,6 @@ export const updateProduct = (id, title, description, imageUrl) => {
             });
 
             // const resData = await response.json();
-
-            console.log(imageUrl);
 
             dispatch({
                 type: UPDATE_PRODUCT,
