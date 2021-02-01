@@ -19,7 +19,7 @@ import HeaderButton from "../../components/UI/HeaderButton";
 import colors from "../../constants/colors";
 
 const ProductOverviewScreen = (props) => {
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState();
     const products = useSelector((state) => state.products.availableProducts);
@@ -88,12 +88,14 @@ const ProductOverviewScreen = (props) => {
         );
     }
 
+    console.log(loadProducts)
+
     return (
         <FlatList
             onRefresh={loadProducts}
             refreshing={isRefreshing}
             data={products}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.id.toString()}
             renderItem={(itemData) => (
                 <ProductItem
                     image={itemData.item.imageUrl}

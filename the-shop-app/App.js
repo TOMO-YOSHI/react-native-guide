@@ -17,6 +17,8 @@ import NavigationContainer from "./navigation/NavigationContainer";
 
 import ShopNavigator from "./navigation/ShopNavigator";
 
+console.disableYellowBox = true;
+
 const rootReducer = combineReducers({
     products: productsReducer,
     cart: cartReducer,
