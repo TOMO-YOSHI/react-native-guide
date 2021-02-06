@@ -21,7 +21,7 @@ exports.postUsers = (req, res) => {
                         "content-location",
                         `localhost:8080/api/users/${results.insertId}`
                     );
-                    res.status(201).send({
+                    res.status(200).send({
                         url: `/api/users/${results.insertId}`,
                         data: {
                             user_id: `${results.insertId}`,
@@ -50,7 +50,7 @@ exports.getUsers = (req, res) => {
         `
             )
                 .then((results) => {
-                    res.send(results);
+                    res.status(200).send(results);
                 })
                 .catch((err) => {
                     console.log(err.message);
