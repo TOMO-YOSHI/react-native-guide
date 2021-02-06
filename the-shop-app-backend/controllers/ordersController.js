@@ -53,7 +53,7 @@ exports.postOrders = (req, res) => {
                     res.send(err.message);
                 });
             });
-            res.send({
+            res.status(200).send({
                 id: order_id,
                 date: date,
             });
@@ -134,7 +134,7 @@ exports.getOrders = (req, res) => {
                     });
                     delete orders[0];
 
-                    res.json(orders);
+                    res.status(200).json(orders);
                 })
                 .catch((err) => {
                     console.log(err.message);

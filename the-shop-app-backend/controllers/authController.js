@@ -64,7 +64,7 @@ exports.signup = (req, res) => {
                     );
 
                     refreshTokensList.push(refreshToken);
-                    res.status(201).send({
+                    res.status(200).send({
                         success: true,
                         user_id: results.insertId,
                         accessToken,

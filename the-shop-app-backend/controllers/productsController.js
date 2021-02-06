@@ -18,7 +18,7 @@ exports.postProducts = (req, res) => {
                 )}, ${promise_mysql.escape(ownerId)});`
             )
                 .then((results) => {
-                    res.send({
+                    res.status(200).send({
                         success: true,
                         product_id: results.insertId,
                     });
@@ -72,7 +72,7 @@ exports.deleteProducts = (req, res) => {
                 `
         )
             .then((results) => {
-                res.send({
+                res.status(200).send({
                     success: true,
                     message: `Deleted the product id of which is ${product_id}`,
                 });
@@ -103,7 +103,7 @@ exports.updateProducts = (req, res) => {
             `
         )
             .then((results) => {
-                res.send({
+                res.status(200).send({
                     success: true,
                     message: `Updated the product id of which is ${product_id}`,
                 });
